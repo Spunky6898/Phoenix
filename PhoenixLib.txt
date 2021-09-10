@@ -1,5 +1,40 @@
 local WindowTable = {}
 
+local UserInputService = game:GetService("UserInputService")
+local function MakeDraggable(topbarobject, object) 
+	pcall(function()
+		local dragging = false
+		local dragInput, mousePos, framePos
+
+		topbarobject.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
+				mousePos = input.Position
+				framePos = object.Position
+
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragging = false
+					end
+				end)
+			end
+		end)
+
+		topbarobject.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement then
+				dragInput = input
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if input == dragInput and dragging then
+				local delta = input.Position - mousePos
+				object.Position  = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+			end
+		end)
+	end)
+end
+
 function WindowTable:CreateWindow(windowname)
 	windowname = windowname or "Unnamed"
 	local UnnamedGUI = Instance.new("ScreenGui")
@@ -14,7 +49,7 @@ function WindowTable:CreateWindow(windowname)
 	local AllTabBtns = Instance.new("Frame")
 	local AllTabBtnsListing = Instance.new("UIListLayout")
 	local AllPages = Instance.new("Frame")
-	
+
 	UnnamedGUI.Name = "UnnamedGUI"
 	UnnamedGUI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 	UnnamedGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -36,6 +71,7 @@ function WindowTable:CreateWindow(windowname)
 	TopBar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
 	TopBar.BorderSizePixel = 0
 	TopBar.Size = UDim2.new(0, 400, 0, 60)
+	MakeDraggable(TopBar, MainFrame)
 
 	TopBarCorner.CornerRadius = UDim.new(0, 3)
 	TopBarCorner.Name = "TopBarCorner"
@@ -89,7 +125,7 @@ function WindowTable:CreateWindow(windowname)
 	AllTabBtns.BackgroundTransparency = 1.000
 	AllTabBtns.Position = UDim2.new(0, 0, 0.5, 0)
 	AllTabBtns.Size = UDim2.new(0, 400, 0, 30)
-	
+
 	AllTabBtnsListing.Name = "AllTabBtnsListing"
 	AllTabBtnsListing.Parent = AllTabBtns
 	AllTabBtnsListing.FillDirection = Enum.FillDirection.Horizontal
@@ -102,12 +138,12 @@ function WindowTable:CreateWindow(windowname)
 	AllPages.BackgroundTransparency = 1.000
 	AllPages.Position = UDim2.new(0, 0, 0.150000006, 0)
 	AllPages.Size = UDim2.new(0, 400, 0, 340)
-	
+
 	local PagesFolder = Instance.new("Folder")
-	
+
 	PagesFolder.Name = "PagesFolder"
 	PagesFolder.Parent = AllPages
-	
+
 	local TabHandler = {}
 
 	function TabHandler:CreateTab(tabname)
@@ -116,7 +152,7 @@ function WindowTable:CreateWindow(windowname)
 		local NewPage = Instance.new("ScrollingFrame")
 		local NewPageTitle = Instance.new("TextLabel")
 		local NewPageListing = Instance.new("UIListLayout")
-		
+
 		TabBtn.Name = "TabBtn"
 		TabBtn.Parent = AllTabBtns
 		TabBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -177,17 +213,17 @@ function WindowTable:CreateWindow(windowname)
 		NewPageListing.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		NewPageListing.SortOrder = Enum.SortOrder.LayoutOrder
 		NewPageListing.Padding = UDim.new(0, 5)
-		
+
 		local ElementHandler = {}
 
 		function ElementHandler:CreateButton(btnText, callback)
 			btnText = btnText or "Text Button"
 			callback = callback or function() end
-			
+
 			local Button = Instance.new("TextButton")
 			local ButtonCorner = Instance.new("UICorner")
 			local ButtonText = Instance.new("TextLabel")
-			
+
 			Button.Name = "Button"
 			Button.Parent = NewPage
 			Button.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
@@ -218,11 +254,11 @@ function WindowTable:CreateWindow(windowname)
 			ButtonText.TextSize = 14.000
 			ButtonText.TextXAlignment = Enum.TextXAlignment.Left
 		end
-		
+
 		function ElementHandler:CreateToggle(togInfo, callback)
 			togInfo = togInfo or "Toggle"
 			callback = callback or function() end
-			
+
 			local ToggleButton = Instance.new("TextButton")
 			local ToggleButtonCorner = Instance.new("UICorner")
 			local ToggleButtonText = Instance.new("TextLabel")
@@ -230,7 +266,7 @@ function WindowTable:CreateWindow(windowname)
 			local ToggleAnimCorner = Instance.new("UICorner")
 			local ToggleSlider = Instance.new("Frame")
 			local UICorner = Instance.new("UICorner")
-			
+
 			ToggleButton.Name = "ToggleButton"
 			ToggleButton.Parent = NewPage
 			ToggleButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
@@ -279,7 +315,7 @@ function WindowTable:CreateWindow(windowname)
 
 			UICorner.CornerRadius = UDim.new(0, 2)
 			UICorner.Parent = ToggleSlider
-			
+
 			local tog = false
 
 			ToggleButton.MouseButton1Click:Connect(function()
