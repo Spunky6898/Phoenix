@@ -49,6 +49,18 @@ function WindowTable:CreateWindow(windowname)
 	local AllTabBtns = Instance.new("Frame")
 	local AllTabBtnsListing = Instance.new("UIListLayout")
 	local AllPages = Instance.new("Frame")
+	local Glow = Instance.new("ImageLabel")
+	
+	Glow.Name = "Glow"
+	Glow.Parent = MainFrame
+	Glow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Glow.BackgroundTransparency = 1.000
+	Glow.Position = UDim2.new(-0.0375000015, 0, -0.0375000015, 0)
+	Glow.Size = UDim2.new(0, 430, 0, 430)
+	Glow.Image = "rbxassetid://4996891970"
+	Glow.ImageColor3 = Color3.fromRGB(15, 15, 15)
+	Glow.ScaleType = Enum.ScaleType.Slice
+	Glow.SliceCenter = Rect.new(20, 20, 280, 280)
 
 	UnnamedGUI.Name = "UnnamedGUI"
 	UnnamedGUI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
