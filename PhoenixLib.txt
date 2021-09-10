@@ -44,8 +44,16 @@ local show = {
 local hide = {
 	TextColor3 = Color3.fromRGB(202, 202, 202)
 }
-local showtext = ts:Create(script.Parent, transitionInfo,show)
-local hidetext = ts:Create(script.Parent, transitionInfo,hide)
+local showtext = ts:Create(Minimize, transitionInfo,show)
+local hidetext = ts:Create(Minimize.Parent, transitionInfo,hide)
+local show2 = {
+	TextColor3 = Color3.fromRGB(250,250,250)
+}
+local hide2 = {
+	TextColor3 = Color3.fromRGB(202, 202, 202)
+}
+local showtext = ts:Create(Exit, transitionInfo,show2)
+local hidetext = ts:Create(Exit, transitionInfo,hide2)
 local minimized = false
 function WindowTable:CreateWindow(windowname)
 	windowname = windowname or "Unnamed"
