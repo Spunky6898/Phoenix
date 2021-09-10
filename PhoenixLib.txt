@@ -14,7 +14,6 @@ function WindowTable:CreateWindow(windowname)
 	local hidetext = ts:Create(script.Parent, transitionInfo,hide)
 	local GUI = script.Parent.Parent.Parent.Parent.MainFrame
 	local minimized = false
-	local main = script.Parent.Parent.Parent.Parent.MainFrame
 	windowname = windowname or "Unnamed"
 	local UnnamedGUI = Instance.new("ScreenGui")
 	local MainFrame = Instance.new("Frame")
@@ -147,13 +146,13 @@ function WindowTable:CreateWindow(windowname)
 	Minimize.MouseButton1Down:Connect(function()
 		if minimized == false then
 			minimized = true
-			main.ClipsDescendants = true
-			main:TweenSize(UDim2.new(0, 400,0, 30), "In", "Quad", .2, true)
+			MainFrame.ClipsDescendants = true
+			MainFrame:TweenSize(UDim2.new(0, 400,0, 30), "In", "Quad", .2, true)
 		elseif minimized == true then
 			minimized = false
-			main:TweenSize(UDim2.new(0, 400,0, 400), "Out", "Quad", .2, true)
+			MainFrame:TweenSize(UDim2.new(0, 400,0, 400), "Out", "Quad", .2, true)
 			wait(.3)
-			main.ClipsDescendants = false
+			MainFrame.ClipsDescendants = false
 		end
 	end)
 	
