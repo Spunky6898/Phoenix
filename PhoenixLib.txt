@@ -1,6 +1,10 @@
-local WindowTable = {}
+local Lib = {}
 
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
 local function MakeDraggable(topbarobject, object) 
 	pcall(function()
 		local dragging = false
@@ -35,81 +39,124 @@ local function MakeDraggable(topbarobject, object)
 	end)
 end
 
-function WindowTable:CreateWindow(windowname)
+local function GetXY(obj)
+	local Max, May = obj.AbsoluteSize.X,obj.AbsoluteSize.Y
+	local Px, Py = math.clamp(Mouse.X - obj.AbsolutePosition.X, 0, Max), math.clamp(Mouse.Y - obj.AbsolutePosition.Y, 0, May)
+	return Px/Max, Py/May
+end
+
+function Ripple(obj)
+	spawn(function()
+		local PX, PY = GetXY(obj)
+		local Circle = Instance.new("ImageLabel")
+		Circle.Name = "Circle"
+		Circle.Parent = obj
+		Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Circle.BackgroundTransparency = 1.000
+		Circle.ZIndex = 10
+		Circle.Image = "rbxassetid://266543268"
+		Circle.ImageColor3 = Color3.fromRGB(70,70,70)
+		Circle.ImageTransparency = 0.6
+		local NewX, NewY = Mouse.X - Circle.AbsolutePosition.X, Mouse.Y - Circle.AbsolutePosition.Y
+		Circle.Position = UDim2.new(0, NewX, 0, NewY)
+		local Size = obj.AbsoluteSize.X
+		TweenService:Create(Circle, TweenInfo.new(.3), {Position = UDim2.fromScale(PX,PY) - UDim2.fromOffset(Size/2,Size/2), ImageTransparency = 1, Size = UDim2.fromOffset(Size,Size)}):Play()
+		spawn(function()
+			wait(1)
+			Circle:Destroy()
+		end)
+	end)
+end
+
+function Lib:CreateMain(title)
 	local minimized = false
-	windowname = windowname or "Unnamed"
-	local UnnamedGUI = Instance.new("ScreenGui")
-	local MainFrame = Instance.new("Frame")
-	local MainFrameCorner = Instance.new("UICorner")
+	title = title or "No Title"
+	local PhoenixMainLib = Instance.new("ScreenGui")
+	local MainBack = Instance.new("Frame")
+	local MainBackCorner = Instance.new("UICorner")
 	local TopBar = Instance.new("Frame")
 	local TopBarCorner = Instance.new("UICorner")
+	local TopBarCover = Instance.new("Frame")
 	local Title = Instance.new("TextLabel")
 	local Exit = Instance.new("TextButton")
-	local Minimize = Instance.new("TextButton")
-	local TabBtnsLine = Instance.new("Frame")
+	local Glow = Instance.new("ImageLabel")
+	local TabBtnsBack = Instance.new("Frame")
+	local TabBtnsBackCorner = Instance.new("UICorner")
+	local TabBtnsBackCover = Instance.new("Frame")
+	local TabBtnsBackCover2 = Instance.new("Frame")
 	local AllTabBtns = Instance.new("Frame")
 	local AllTabBtnsListing = Instance.new("UIListLayout")
 	local AllPages = Instance.new("Frame")
-	local Glow = Instance.new("ImageLabel")
+	local Minimize = Instance.new("TextButton")
 	
-	local ts = game:GetService("TweenService")
-	local transitionInfo = TweenInfo.new(0.18, Enum.EasingStyle.Quad,Enum.EasingDirection.In)
-
-	local show = {
-		TextColor3 = Color3.fromRGB(250,250,250)
-	}
-	local hide = {
-		TextColor3 = Color3.fromRGB(202, 202, 202)
-	}
-	local showtext = ts:Create(script.Parent, transitionInfo,show)
-	local hidetext = ts:Create(script.Parent, transitionInfo,hide)
+	Minimize.Name = "Minimize"
+	Minimize.Parent = TopBar
+	Minimize.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Minimize.BackgroundTransparency = 1.000
+	Minimize.Position = UDim2.new(0.839999974, 0, 0, 0)
+	Minimize.Size = UDim2.new(0, 32, 0, 32)
+	Minimize.Font = Enum.Font.SourceSans
+	Minimize.Text = "－"
+	Minimize.TextColor3 = Color3.fromRGB(202, 202, 202)
+	Minimize.TextSize = 32.000
+	Minimize.MouseButton1Click:Connect(function()
+		if minimized == false then
+			minimized = true
+			MainBack.ClipsDescendants = true
+			TabBtnsBack.Visible = false
+			TopBarCover.Visible = false
+			MainBack:TweenSize(UDim2.new(0, 400, 0, 32), "In", "Quint", .2, true)
+		elseif minimized == true then
+			minimized = false
+			MainBack:TweenSize(UDim2.new(0, 400, 0, 350), "In", "Quint", .2, true)
+			TabBtnsBack.Visible = true
+			TopBarCover.Visible = true
+			wait(.2)
+			MainBack.ClipsDescendants = false
+		end
+	end)
 	
-	Glow.Name = "Glow"
-	Glow.Parent = MainFrame
-	Glow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	Glow.BackgroundTransparency = 1.000
-	Glow.Position = UDim2.new(-0.0375000015, 0, -0.0375000015, 0)
-	Glow.Size = UDim2.new(0, 430, 0, 430)
-	Glow.Image = "rbxassetid://4996891970"
-	Glow.ImageColor3 = Color3.fromRGB(15, 15, 15)
-	Glow.ScaleType = Enum.ScaleType.Slice
-	Glow.SliceCenter = Rect.new(20, 20, 280, 280)
+	PhoenixMainLib.Name = "PhoenixMainLib"
+	PhoenixMainLib.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	PhoenixMainLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-	UnnamedGUI.Name = "UnnamedGUI"
-	UnnamedGUI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-	UnnamedGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	MainBack.Name = "MainBack"
+	MainBack.Parent = PhoenixMainLib
+	MainBack.BackgroundColor3 = Color3.fromRGB(21, 21, 21)
+	MainBack.BorderSizePixel = 0
+	MainBack.Position = UDim2.new(0.326388866, 0, 0.284662575, 0)
+	MainBack.Size = UDim2.new(0, 400, 0, 350)
 
-	MainFrame.Name = "MainFrame"
-	MainFrame.Parent = UnnamedGUI
-	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	MainFrame.BackgroundColor3 = Color3.fromRGB(21, 21, 21)
-	MainFrame.BorderSizePixel = 0
-	MainFrame.Position = UDim2.new(0.499557436, 0, 0.499386489, 0)
-	MainFrame.Size = UDim2.new(0, 400, 0, 400)
-
-	MainFrameCorner.CornerRadius = UDim.new(0, 3)
-	MainFrameCorner.Name = "MainFrameCorner"
-	MainFrameCorner.Parent = MainFrame
+	MainBackCorner.CornerRadius = UDim.new(0, 5)
+	MainBackCorner.Name = "MainBackCorner"
+	MainBackCorner.Parent = MainBack
 
 	TopBar.Name = "TopBar"
-	TopBar.Parent = MainFrame
-	TopBar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-	TopBar.BorderSizePixel = 0
-	TopBar.Size = UDim2.new(0, 400, 0, 60)
-	MakeDraggable(TopBar, MainFrame)
+	TopBar.Parent = MainBack
+	TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	TopBar.Size = UDim2.new(0, 400, 0, 32)
+	TopBar.ZIndex = 100
+	MakeDraggable(TopBar, MainBack)
 
-	TopBarCorner.CornerRadius = UDim.new(0, 3)
+	TopBarCorner.CornerRadius = UDim.new(0, 5)
 	TopBarCorner.Name = "TopBarCorner"
 	TopBarCorner.Parent = TopBar
+
+	TopBarCover.Name = "TopBarCover"
+	TopBarCover.Parent = TopBar
+	TopBarCover.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	TopBarCover.BorderSizePixel = 0
+	TopBarCover.Position = UDim2.new(0, 0, 0.850000024, 0)
+	TopBarCover.Size = UDim2.new(0, 400, 0, 6)
 
 	Title.Name = "Title"
 	Title.Parent = TopBar
 	Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	Title.BackgroundTransparency = 1.000
-	Title.Position = UDim2.new(0.0274999999, 0, 0, 0)
-	Title.Size = UDim2.new(0, 184, 0, 29)
+	Title.Position = UDim2.new(0.0225000009, 0, 0, 0)
+	Title.Size = UDim2.new(0, 191, 0, 33)
 	Title.Font = Enum.Font.GothamSemibold
-	Title.Text = windowname
+	Title.Text = title
 	Title.TextColor3 = Color3.fromRGB(220, 220, 220)
 	Title.TextSize = 14.000
 	Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -118,217 +165,207 @@ function WindowTable:CreateWindow(windowname)
 	Exit.Parent = TopBar
 	Exit.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	Exit.BackgroundTransparency = 1.000
-	Exit.Position = UDim2.new(0.925000012, 0, -0.0219999999, 0)
-	Exit.Size = UDim2.new(0, 26, 0, 30)
+	Exit.Position = UDim2.new(0.919999957, 0, 0, 0)
+	Exit.Size = UDim2.new(0, 32, 0, 32)
 	Exit.Font = Enum.Font.SourceSans
 	Exit.Text = "×"
 	Exit.TextColor3 = Color3.fromRGB(202, 202, 202)
-	Exit.TextSize = 25.000
-	Exit.MouseEnter:Connect(function()
-		showtext:Play()
-	end)
-	Exit.MouseLeave:Connect(function()
-		hidetext:Play()
-	end)
-	Exit.MouseButton1Click:Connecti(function()
-		MainFrame:Destroy()
+	Exit.TextSize = 34.000
+	Exit.MouseButton1Click:Connect(function()
+		MainBack:Destroy()
 	end)
 
-	Minimize.Name = "Minimize"
-	Minimize.Parent = TopBar
-	Minimize.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	Minimize.BackgroundTransparency = 1.000
-	Minimize.Position = UDim2.new(0.860000014, 0, -0.0220586136, 0)
-	Minimize.Size = UDim2.new(0, 26, 0, 30)
-	Minimize.Font = Enum.Font.SourceSans
-	Minimize.Text = "－"
-	Minimize.TextColor3 = Color3.fromRGB(202, 202, 202)
-	Minimize.TextSize = 25.000
-	Minimize.MouseEnter:Connect(function()
-		showtext:Play()
-	end)
-	Minimize.MouseLeave:Connect(function()
-		hidetext:Play()
-	end)
-	Minimize.MouseButton1Down:Connect(function()
-		if minimized == false then
-			minimized = true
-			MainFrame.ClipsDescendants = true
-			MainFrame:TweenSize(UDim2.new(0, 400,0, 30), "In", "Quad", .2, true)
-		elseif minimized == true then
-			minimized = false
-			MainFrame:TweenSize(UDim2.new(0, 400,0, 400), "Out", "Quad", .2, true)
-			wait(.3)
-			MainFrame.ClipsDescendants = false
-		end
-	end)
+	Glow.Name = "Glow"
+	Glow.Parent = MainBack
+	Glow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Glow.BackgroundTransparency = 1.000
+	Glow.Position = UDim2.new(-0.0375000015, 0, -0.042857144, 0)
+	Glow.Size = UDim2.new(0, 430, 0, 380)
+	Glow.Image = "rbxassetid://4996891970"
+	Glow.ImageColor3 = Color3.fromRGB(15, 15, 15)
+	Glow.ScaleType = Enum.ScaleType.Slice
+	Glow.SliceCenter = Rect.new(20, 20, 280, 280)
 
-	TabBtnsLine.Name = "TabBtnsLine"
-	TabBtnsLine.Parent = TopBar
-	TabBtnsLine.AnchorPoint = Vector2.new(0.5, 0.5)
-	TabBtnsLine.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	TabBtnsLine.BorderSizePixel = 0
-	TabBtnsLine.Position = UDim2.new(0.5, 0, 0.49666664, 0)
-	TabBtnsLine.Size = UDim2.new(0, 400, 0, 1)
+	TabBtnsBack.Name = "TabBtnsBack"
+	TabBtnsBack.Parent = MainBack
+	TabBtnsBack.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	TabBtnsBack.BorderSizePixel = 0
+	TabBtnsBack.Position = UDim2.new(0, 0, 0.0942857116, 0)
+	TabBtnsBack.Size = UDim2.new(0, 110, 0, 317)
+
+	TabBtnsBackCorner.CornerRadius = UDim.new(0, 5)
+	TabBtnsBackCorner.Name = "TabBtnsBackCorner"
+	TabBtnsBackCorner.Parent = TabBtnsBack
+
+	TabBtnsBackCover.Name = "TabBtnsBackCover"
+	TabBtnsBackCover.Parent = TabBtnsBack
+	TabBtnsBackCover.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	TabBtnsBackCover.BorderSizePixel = 0
+	TabBtnsBackCover.Position = UDim2.new(0, 0, -0.000351481634, 0)
+	TabBtnsBackCover.Size = UDim2.new(0, 110, 0, 6)
+
+	TabBtnsBackCover2.Name = "TabBtnsBackCover2"
+	TabBtnsBackCover2.Parent = TabBtnsBack
+	TabBtnsBackCover2.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	TabBtnsBackCover2.BorderSizePixel = 0
+	TabBtnsBackCover2.Position = UDim2.new(0.145454541, 0, 0.980720997, 0)
+	TabBtnsBackCover2.Size = UDim2.new(0, 94, 0, 6)
 
 	AllTabBtns.Name = "AllTabBtns"
-	AllTabBtns.Parent = TopBar
-	AllTabBtns.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	AllTabBtns.Parent = TabBtnsBack
+	AllTabBtns.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 	AllTabBtns.BackgroundTransparency = 1.000
-	AllTabBtns.Position = UDim2.new(0, 0, 0.5, 0)
-	AllTabBtns.Size = UDim2.new(0, 400, 0, 30)
-
+	AllTabBtns.BorderSizePixel = 0
+	AllTabBtns.Position = UDim2.new(0, 0, 0.0185759626, 0)
+	AllTabBtns.Size = UDim2.new(0, 110, 0, 310)
+	
 	AllTabBtnsListing.Name = "AllTabBtnsListing"
 	AllTabBtnsListing.Parent = AllTabBtns
-	AllTabBtnsListing.FillDirection = Enum.FillDirection.Horizontal
 	AllTabBtnsListing.SortOrder = Enum.SortOrder.LayoutOrder
-	AllTabBtnsListing.VerticalAlignment = Enum.VerticalAlignment.Center
-
+	
 	AllPages.Name = "AllPages"
-	AllPages.Parent = MainFrame
+	AllPages.Parent = MainBack
 	AllPages.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	AllPages.BackgroundTransparency = 1.000
-	AllPages.Position = UDim2.new(0, 0, 0.150000006, 0)
-	AllPages.Size = UDim2.new(0, 400, 0, 340)
-
+	AllPages.Position = UDim2.new(0.294999987, 0, 0.111110233, 0)
+	AllPages.Size = UDim2.new(0, 275, 0, 304)
+	
 	local PagesFolder = Instance.new("Folder")
-
+	
 	PagesFolder.Name = "PagesFolder"
 	PagesFolder.Parent = AllPages
-
+	
 	local TabHandler = {}
-
-	function TabHandler:CreateTab(tabname)
-		tabname = tabname or "New Tab"
+	
+	function TabHandler:CreateTab(tabtext)
+		tabtext = tabtext or "New Tab"
+		
 		local TabBtn = Instance.new("TextButton")
 		local NewPage = Instance.new("ScrollingFrame")
-		local NewPageTitle = Instance.new("TextLabel")
 		local NewPageListing = Instance.new("UIListLayout")
-
+		
 		TabBtn.Name = "TabBtn"
 		TabBtn.Parent = AllTabBtns
-		TabBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		TabBtn.BackgroundTransparency = 1.000
-		TabBtn.Size = UDim2.new(0, 66, 0, 30)
+		TabBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+		TabBtn.BorderSizePixel = 0
+		TabBtn.Position = UDim2.new(0, 0, 0.0189873409, 0)
+		TabBtn.Size = UDim2.new(0, 110, 0, 35)
+		TabBtn.AutoButtonColor = false
 		TabBtn.Font = Enum.Font.Gotham
+		TabBtn.Text = tabtext
 		TabBtn.TextColor3 = Color3.fromRGB(202, 202, 202)
-		TabBtn.TextSize = 14.000
-		TabBtn.Text = tabname
+		TabBtn.TextSize = 12.000
 		TabBtn.MouseButton1Click:Connect(function()
 			for i,v in next, PagesFolder:GetChildren() do
 				v.Visible = false
 			end 
 			NewPage.Visible = true
 
-			--Animations Below  -- Optional
 			for i,v in next, AllTabBtns:GetChildren() do
 				if v:IsA("TextButton") then
 					game.TweenService:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-						TextColor3 = Color3.fromRGB(202,202,202) -- We animate other Tab Buttons and making the current one seem Checked
+						BackgroundColor3 = Color3.fromRGB(25,25,25)
 					}):Play()
 				end
 			end
 			game.TweenService:Create(TabBtn, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
-				TextColor3 = Color3.fromRGB(255,255,255) -- We animate other Tab Buttons and making the current one seem Checked
+				BackgroundColor3 = Color3.fromRGB(30,30,30)
 			}):Play()
 		end)
 
 		NewPage.Name = "NewPage"
 		NewPage.Parent = PagesFolder
-		NewPage.AnchorPoint = Vector2.new(0.5, 0.5)
 		NewPage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		NewPage.BackgroundTransparency = 1.000
 		NewPage.BorderSizePixel = 0
-		NewPage.Position = UDim2.new(0.5, 0, 0.491176456, 0)
-		NewPage.Size = UDim2.new(0, 379, 0, 322)
+		NewPage.Position = UDim2.new(0.00272727269, 0, 0.0197556149, 0)
+		NewPage.Size = UDim2.new(0, 272, 0, 298)
 		NewPage.ScrollBarThickness = 3
 		NewPage.ScrollBarImageTransparency = 1
 		NewPage.Visible = false
 		NewPage.ZIndex = 99
-		NewPage.BottomImage = "http://www.roblox.com/asset/?id=7401175819"
-		NewPage.MidImage = "http://www.roblox.com/asset/?id=7401175819"
-		NewPage.TopImage = "http://www.roblox.com/asset/?id=7401175819"
-
-		NewPageTitle.Name = "NewPageTitle"
-		NewPageTitle.Parent = NewPage
-		NewPageTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		NewPageTitle.BackgroundTransparency = 1.000
-		NewPageTitle.Position = UDim2.new(0.236147761, 0, 0, 0)
-		NewPageTitle.Size = UDim2.new(0, 200, 0, 30)
-		NewPageTitle.Font = Enum.Font.GothamSemibold
-		NewPageTitle.Text = tabname
-		NewPageTitle.TextColor3 = Color3.fromRGB(220, 220, 220)
-		NewPageTitle.TextSize = 14.000
-
+		
 		NewPageListing.Name = "NewPageListing"
 		NewPageListing.Parent = NewPage
 		NewPageListing.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		NewPageListing.SortOrder = Enum.SortOrder.LayoutOrder
 		NewPageListing.Padding = UDim.new(0, 5)
-
-		local ElementHandler = {}
-
-		function ElementHandler:CreateButton(btnText, callback)
-			btnText = btnText or "Text Button"
-			callback = callback or function() end
-
-			local Button = Instance.new("TextButton")
-			local ButtonCorner = Instance.new("UICorner")
-			local ButtonText = Instance.new("TextLabel")
-
-			Button.Name = "Button"
-			Button.Parent = NewPage
-			Button.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-			Button.Position = UDim2.new(-0.104221635, 0, 0.0931676999, 0)
-			Button.Size = UDim2.new(0, 329, 0, 30)
-			Button.AutoButtonColor = false
-			Button.Font = Enum.Font.SourceSans
-			Button.Text = ""
-			Button.TextColor3 = Color3.fromRGB(0, 0, 0)
-			Button.TextSize = 14.000
-			Button.MouseButton1Click:Connect(function()
+		
+		local PageHandler = {}
+		
+		function PageHandler:CreateButton(buttontext, callback)
+			buttontext = buttontext or "Button"
+			local NormalButton = Instance.new("TextButton")
+			local NormalButtonCorner = Instance.new("UICorner")
+			local NormalButtonText = Instance.new("TextLabel")
+			
+			NormalButton.Name = "NormalButton"
+			NormalButton.Parent = NewPage
+			NormalButton.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+			NormalButton.Position = UDim2.new(0.00566037744, 0, 0.119862907, 0)
+			NormalButton.Size = UDim2.new(0, 257, 0, 30)
+			NormalButton.AutoButtonColor = false
+			NormalButton.Font = Enum.Font.SourceSans
+			NormalButton.Text = ""
+			NormalButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+			NormalButton.TextSize = 14.000
+			NormalButton.ClipsDescendants = true
+			NormalButton.MouseButton1Click:Connect(function()
+				Ripple(NormalButton)
 				callback()
 			end)
 
-			ButtonCorner.CornerRadius = UDim.new(0, 3)
-			ButtonCorner.Name = "ButtonCorner"
-			ButtonCorner.Parent = Button
+			NormalButtonCorner.CornerRadius = UDim.new(0, 3)
+			NormalButtonCorner.Name = "NormalButtonCorner"
+			NormalButtonCorner.Parent = NormalButton
 
-			ButtonText.Name = btnText
-			ButtonText.Parent = Button
-			ButtonText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			ButtonText.BackgroundTransparency = 1.000
-			ButtonText.Position = UDim2.new(0.0425531901, 0, 0, 0)
-			ButtonText.Size = UDim2.new(0, 186, 0, 30)
-			ButtonText.Font = Enum.Font.Gotham
-			ButtonText.Text = "Button Text"
-			ButtonText.TextColor3 = Color3.fromRGB(202, 202, 202)
-			ButtonText.TextSize = 14.000
-			ButtonText.TextXAlignment = Enum.TextXAlignment.Left
+			NormalButtonText.Name = "NormalButtonText"
+			NormalButtonText.Parent = NormalButton
+			NormalButtonText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			NormalButtonText.BackgroundTransparency = 1.000
+			NormalButtonText.Position = UDim2.new(0.0470588244, 0, 0, 0)
+			NormalButtonText.Size = UDim2.new(0, 161, 0, 29)
+			NormalButtonText.Font = Enum.Font.Gotham
+			NormalButtonText.Text = buttontext
+			NormalButtonText.TextColor3 = Color3.fromRGB(202, 202, 202)
+			NormalButtonText.TextSize = 14.000
+			NormalButtonText.TextXAlignment = Enum.TextXAlignment.Left
 		end
-
-		function ElementHandler:CreateToggle(togInfo, callback)
-			togInfo = togInfo or "Toggle"
-			callback = callback or function() end
-
+		function PageHandler:CreateToggle(togglebuttontext, callback)
+			togglebuttontext = togglebuttontext or "Button"
 			local ToggleButton = Instance.new("TextButton")
 			local ToggleButtonCorner = Instance.new("UICorner")
 			local ToggleButtonText = Instance.new("TextLabel")
-			local ToggleAnim = Instance.new("Frame")
-			local ToggleAnimCorner = Instance.new("UICorner")
-			local ToggleSlider = Instance.new("Frame")
-			local UICorner = Instance.new("UICorner")
-
+			
 			ToggleButton.Name = "ToggleButton"
 			ToggleButton.Parent = NewPage
-			ToggleButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-			ToggleButton.Position = UDim2.new(-0.104221635, 0, 0.0931676999, 0)
-			ToggleButton.Size = UDim2.new(0, 329, 0, 30)
+			ToggleButton.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+			ToggleButton.Position = UDim2.new(0.0207547173, 0, -1.04512253e-07, 0)
+			ToggleButton.Size = UDim2.new(0, 255, 0, 30)
 			ToggleButton.AutoButtonColor = false
 			ToggleButton.Font = Enum.Font.SourceSans
 			ToggleButton.Text = ""
 			ToggleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
 			ToggleButton.TextSize = 14.000
+			ToggleButton.ClipsDescendants = true
+			
+			local toggled = false
+			
+			ToggleButton.MouseButton1Click:Connect(function()
+				toggled = not toggled
+				callback(toggled)
+				if toggled then 
+					Ripple(ToggleButton)
+					game.TweenService:Create(ToggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
+						BackgroundColor3 = Color3.fromRGB(36,36,36)
+					}):Play()
+				else
+					Ripple(ToggleButton)
+					game.TweenService:Create(ToggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
+						BackgroundColor3 = Color3.fromRGB(26,26,26)
+					}):Play()
+				end
+			end)
 
 			ToggleButtonCorner.CornerRadius = UDim.new(0, 3)
 			ToggleButtonCorner.Name = "ToggleButtonCorner"
@@ -338,52 +375,16 @@ function WindowTable:CreateWindow(windowname)
 			ToggleButtonText.Parent = ToggleButton
 			ToggleButtonText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			ToggleButtonText.BackgroundTransparency = 1.000
-			ToggleButtonText.Position = UDim2.new(0.0425531901, 0, 0, 0)
-			ToggleButtonText.Size = UDim2.new(0, 186, 0, 30)
+			ToggleButtonText.Position = UDim2.new(0.0470588244, 0, 0, 0)
+			ToggleButtonText.Size = UDim2.new(0, 161, 0, 29)
 			ToggleButtonText.Font = Enum.Font.Gotham
-			ToggleButtonText.Text = togInfo
+			ToggleButtonText.Text = togglebuttontext
 			ToggleButtonText.TextColor3 = Color3.fromRGB(202, 202, 202)
 			ToggleButtonText.TextSize = 14.000
 			ToggleButtonText.TextXAlignment = Enum.TextXAlignment.Left
-
-			ToggleAnim.Name = "ToggleAnim"
-			ToggleAnim.Parent = ToggleButton
-			ToggleAnim.AnchorPoint = Vector2.new(0.5, 0.5)
-			ToggleAnim.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-			ToggleAnim.Position = UDim2.new(0.922492385, 0, 0.5, 0)
-			ToggleAnim.Size = UDim2.new(0, 36, 0, 16)
-
-			ToggleAnimCorner.CornerRadius = UDim.new(0, 3)
-			ToggleAnimCorner.Name = "ToggleAnimCorner"
-			ToggleAnimCorner.Parent = ToggleAnim
-
-			ToggleSlider.Name = "ToggleSlider"
-			ToggleSlider.Parent = ToggleAnim
-			ToggleSlider.AnchorPoint = Vector2.new(0.5, 0.5)
-			ToggleSlider.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
-			ToggleSlider.BorderSizePixel = 0
-			ToggleSlider.Position = UDim2.new(0.210999995, 3, 0.432999998, 1)
-			ToggleSlider.Size = UDim2.new(0, 15, 0, 10)
-
-			UICorner.CornerRadius = UDim.new(0, 2)
-			UICorner.Parent = ToggleSlider
-
-			local tog = false
-
-			ToggleButton.MouseButton1Click:Connect(function()
-				tog = not tog
-				callback(tog) -- Callbacks whenever we toggle
-				if tog then 
-					ToggleSlider:TweenPosition(UDim2.new(0.611, 3,0.433, 1), "Out", "Quad", .2, true)
-					--- We put our animation here when the toggle is on
-				else
-					ToggleSlider:TweenPosition(UDim2.new(0.211, 3,0.433, 1), "Out", "Quad", .2, true)
-					---We Put our animation here when the toggle is off
-				end
-			end)
 		end
-		return ElementHandler
+		return PageHandler
 	end
 	return TabHandler
 end
-return WindowTable
+return Lib
