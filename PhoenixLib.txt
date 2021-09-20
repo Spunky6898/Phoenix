@@ -1,5 +1,25 @@
 local Lib = {}
 
+for _, v in pairs(game:GetService("CoreGui"):GetChildren()) do
+	if v:FindFirstChild("MainBack") then
+		v:Destroy()
+	end
+end
+
+game:GetService("UserInputService").InputBegan:connect(
+function(key, gpe)
+	if key.KeyCode == Enum.KeyCode.RightControl then
+		pcall(
+			function()
+				for i, v in pairs(game.CoreGui.SnowHub:GetChildren()) do
+					v.Visible = not v.Visible
+				end
+			end
+		)
+	end
+end
+)
+
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
@@ -87,37 +107,9 @@ function Lib:CreateMain(title)
 	local AllTabBtns = Instance.new("Frame")
 	local AllTabBtnsListing = Instance.new("UIListLayout")
 	local AllPages = Instance.new("Frame")
-	local Minimize = Instance.new("TextButton")
-	
-	Minimize.Name = "Minimize"
-	Minimize.Parent = TopBar
-	Minimize.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	Minimize.BackgroundTransparency = 1.000
-	Minimize.Position = UDim2.new(0.839999974, 0, 0, 0)
-	Minimize.Size = UDim2.new(0, 32, 0, 32)
-	Minimize.Font = Enum.Font.SourceSans
-	Minimize.Text = "－"
-	Minimize.TextColor3 = Color3.fromRGB(202, 202, 202)
-	Minimize.TextSize = 34.000
-	Minimize.MouseButton1Click:Connect(function()
-		if minimized == false then
-			minimized = true
-			MainBack.ClipsDescendants = true
-			TabBtnsBack.Visible = false
-			TopBarCover.Visible = false
-			MainBack:TweenSize(UDim2.new(0, 400, 0, 32), "In", "Quint", .2, true)
-		elseif minimized == true then
-			minimized = false
-			MainBack:TweenSize(UDim2.new(0, 400, 0, 350), "In", "Quint", .2, true)
-			TabBtnsBack.Visible = true
-			TopBarCover.Visible = true
-			wait(.2)
-			MainBack.ClipsDescendants = false
-		end
-	end)
 	
 	PhoenixMainLib.Name = "PhoenixMainLib"
-	PhoenixMainLib.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	PhoenixMainLib.Parent = game.CoreGui
 	PhoenixMainLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 	MainBack.Name = "MainBack"
