@@ -98,7 +98,7 @@ function Lib:CreateMain(title)
 	Minimize.Font = Enum.Font.SourceSans
 	Minimize.Text = "－"
 	Minimize.TextColor3 = Color3.fromRGB(202, 202, 202)
-	Minimize.TextSize = 32.000
+	Minimize.TextSize = 34.000
 	Minimize.MouseButton1Click:Connect(function()
 		if minimized == false then
 			minimized = true
