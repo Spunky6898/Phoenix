@@ -8,7 +8,7 @@ end
 
 game:GetService("UserInputService").InputBegan:connect(
 function(key, gpe)
-	if key.KeyCode == Enum.KeyCode.RightControl then
+	if key.KeyCode == Enum.KeyCode.RightShift then
 		pcall(
 			function()
 				for i, v in pairs(game.CoreGui.PhoenixMainLib:GetChildren()) do
