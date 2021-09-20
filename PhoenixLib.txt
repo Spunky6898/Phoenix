@@ -11,7 +11,7 @@ function(key, gpe)
 	if key.KeyCode == Enum.KeyCode.RightControl then
 		pcall(
 			function()
-				for i, v in pairs(game.CoreGui.SnowHub:GetChildren()) do
+				for i, v in pairs(game.CoreGui.PhoenixMainLib:GetChildren()) do
 					v.Visible = not v.Visible
 				end
 			end
